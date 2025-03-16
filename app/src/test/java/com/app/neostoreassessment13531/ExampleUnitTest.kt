@@ -1,4 +1,4 @@
-package com.bm.neostoreassessment13531
+package com.app.neostoreassessment13531
 
 import org.junit.Test
 
