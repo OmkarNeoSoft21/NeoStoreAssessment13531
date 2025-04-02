@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.app.neostoreassessment13531.core.ui.theme.AppTheme
-import com.app.neostoreassessment13531.neostore.domain.repo_user.UserDataModel
+import com.app.neostoreassessment13531.neostore.domain.model.UserDataModel
 
 @Composable
 fun UserListItem(
@@ -53,7 +52,7 @@ fun UserListItem(
                 contentDescription = "UserImage"
             )
             Column(Modifier.fillMaxWidth(0.85f)) {
-                Text(text = model.profession,
+                Text(text = model.professional?.designation ?: "",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
@@ -83,9 +82,7 @@ private fun UserListPreview() {
             model = UserDataModel(
                 firstName = "Omkar",
                 lastName = "Sawant",
-                profession = "Senior Software Engineer",
                 phoneNumber = "8779876543",
-                experience = "5.9",
                 email = "okmbvfg@dfbnm.coc",
                 gender = "Male",
             )

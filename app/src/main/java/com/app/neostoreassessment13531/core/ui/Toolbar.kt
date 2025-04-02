@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.app.neostoreassessment13531.core.LocalNavController
 import com.app.neostoreassessment13531.core.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,6 +32,7 @@ fun CustomToolbar(
     ),
     onBackClick:(()->Unit) ?= null
 ) {
+    val navController = LocalNavController.current
     TopAppBar(
         modifier = Modifier
             .padding(bottom = 10.dp)
@@ -40,7 +42,9 @@ fun CustomToolbar(
             AnimatedVisibility(isBackArrow){
                 Icon(
                     modifier = Modifier.clickable {
-                        onBackClick?.invoke()
+                        onBackClick?.invoke() ?: run {
+                            navController.navigateUp()
+                        }
                     },
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = "Back",
