@@ -1,21 +1,36 @@
 package com.app.neostoreassessment13531.neostore.presentation.register_user.view
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AddAPhoto
+import androidx.compose.material.icons.outlined.Camera
+import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.rounded.LocationCity
 import androidx.compose.material.icons.twotone.AccountCircle
 import androidx.compose.material.icons.twotone.Email
@@ -23,7 +38,10 @@ import androidx.compose.material.icons.twotone.Lock
 import androidx.compose.material.icons.twotone.Phone
 import androidx.compose.material.icons.twotone.School
 import androidx.compose.material.icons.twotone.Work
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -38,6 +56,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.app.neostoreassessment13531.core.LocalNavController
 import com.app.neostoreassessment13531.core.ui.CustomDropDown
 import com.app.neostoreassessment13531.core.ui.CustomToolbar
@@ -54,15 +75,20 @@ import com.app.neostoreassessment13531.core.ui.HeadlineTextField
 import com.app.neostoreassessment13531.core.ui.VerticalSpacer
 import com.app.neostoreassessment13531.core.ui.screenMargin
 import com.app.neostoreassessment13531.core.ui.theme.AppTheme
+import com.app.neostoreassessment13531.core.util.FileHelper
 import com.app.neostoreassessment13531.neostore.domain.enum.EducationType
+import com.app.neostoreassessment13531.neostore.domain.enum.Form
+import com.app.neostoreassessment13531.neostore.domain.enum.Gender
 import com.app.neostoreassessment13531.neostore.domain.model.AddressModel
 import com.app.neostoreassessment13531.neostore.domain.model.EducationModel
 import com.app.neostoreassessment13531.neostore.domain.model.ProfessionalModel
 import com.app.neostoreassessment13531.neostore.domain.model.RegisterUserModel
 import com.app.neostoreassessment13531.neostore.domain.model.UserDataModel
+import com.app.neostoreassessment13531.neostore.presentation.register_user.state.UiRegisterUserActions
 import com.app.neostoreassessment13531.neostore.presentation.register_user.view_model.RegisterUserViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun UiScreenRegisterUser(
@@ -72,89 +98,194 @@ fun UiScreenRegisterUser(
     val pagerState = rememberPagerState(0) { 3 }
     val scope = rememberCoroutineScope()
     val navController = LocalNavController.current
+
     UiRegisterUser(
         state = uiState.state?.registerUser ?: RegisterUserModel(),
         pagerState = pagerState,
-        onUpdateUserState = { viewModel.updateState(it) },
-        onUpdateAddressState = { viewModel.updateState(it) },
-        onUpdateProfessionalState = { viewModel.updateState(it) },
-        onUpdateEducationModel = { viewModel.updateState(it) },
-        onValidate = {
+        onUiRegisterUserActions = {
             when (it) {
-                Form.User -> viewModel.validateUser {
-                    onNextPage(scope = scope, pagerState)
-                }
+                is UiRegisterUserActions.OnBackPressed -> onBackPressed(
+                    navController = navController, pagerState = pagerState, scope = scope
+                )
 
-                Form.Address -> viewModel.validateAddress { onNextPage(scope = scope, pagerState) }
-
-                Form.Professional -> viewModel.validateProfessional {
-                    viewModel.registerUser { navController.navigateUp() }
-                }
+                else -> viewModel.onUserAction(
+                    action = it,
+                    onNextPage = { onNextPage(scope = scope, pagerState = pagerState) },
+                    onRegisterUserCompletion = { navController.navigateUp() })
             }
-        }
-    )
+        })
 }
 
-enum class Gender {
-    None, Male, Female
-}
-
-enum class Form {
-    User, Address, Professional,
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UiRegisterUser(
     state: RegisterUserModel,
     pagerState: PagerState,
-    onUpdateUserState: (UserDataModel) -> Unit,
-    onUpdateAddressState: (AddressModel) -> Unit,
-    onUpdateEducationModel: (EducationModel) -> Unit,
-    onUpdateProfessionalState: (ProfessionalModel) -> Unit,
-    onValidate: (Form) -> Unit
+    onUiRegisterUserActions: (UiRegisterUserActions) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-    val navController = LocalNavController.current
-    BackHandler(true) {
-        onBackPressed(navController, pagerState, scope)
-    }
-    Scaffold(topBar = {
-        CustomToolbar("Register User", isBackArrow = true) {
-            onBackPressed(navController, pagerState, scope)
+    val context = LocalContext.current
+    var isOpenCameraDialog by remember { mutableStateOf(false) }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            bitmap?.let {
+                val uri = FileHelper.saveBitmapToCacheAndGetUri(context, it)
+                onUiRegisterUserActions(
+                    UiRegisterUserActions.OnUpdateUserState(
+                        state.user.copy(
+                            imageUri = uri.toString()
+                        )
+                    )
+                )
+            }
         }
-    }) { padding ->
+
+    val galleryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            onUiRegisterUserActions(UiRegisterUserActions.OnUpdateUserState(state.user.copy(imageUri = uri.toString())))
+        }
+    BackHandler(true) {
+        onUiRegisterUserActions.invoke(UiRegisterUserActions.OnBackPressed)
+    }
+
+
+    Scaffold(
+        topBar = {
+            CustomToolbar("Register User", isBackArrow = true) {
+                onUiRegisterUserActions.invoke(UiRegisterUserActions.OnBackPressed)
+            }
+        }) { padding ->
         Box(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .screenMargin()
         ) {
-            HorizontalPager(state = pagerState) { index ->
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.TopCenter),
+                pageSpacing = 12.dp,
+                userScrollEnabled = false
+            ) { index ->
                 when (index) {
                     0 -> UiFormUser(
                         state = state.user,
-                        onUpdateState = onUpdateUserState,
-                        onValidate = onValidate
-                    )
+                        onUiRegisterUserActions = onUiRegisterUserActions,
+                        imageModifier = Modifier.clickable {
+                            isOpenCameraDialog = true
+                        })
 
                     1 -> UiFormAddress(
-                        state = state.address,
-                        onUpdateAddress = onUpdateAddressState,
-                        onValidate = onValidate
+                        state = state.address, onUiRegisterUserActions = onUiRegisterUserActions
                     )
 
                     2 -> UiFormProfessional(
                         proState = state.professional,
                         eduState = state.education,
-                        onUpdateEducationState = onUpdateEducationModel,
-                        onUpdateProfessionalState = onUpdateProfessionalState,
-                        onValidate = onValidate
+                        onUiRegisterUserActions
+                    )
+                }
+            }
+
+
+            if (isOpenCameraDialog) {
+                DialogImagePicker(
+                    modifier = Modifier.align(Alignment.Center),
+                    onDismissRequest = { isOpenCameraDialog = false },
+                    onCameraClick = {
+                        cameraLauncher.launch(null)
+                        isOpenCameraDialog = false
+                    },
+                    onGalleryClick = {
+                        galleryLauncher.launch("image/*")
+                        isOpenCameraDialog = false
+                    })
+
+            }
+        }
+
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DialogImagePicker(
+    modifier: Modifier,
+    onDismissRequest: () -> Unit = {},
+    onCameraClick: () -> Unit,
+    onGalleryClick: () -> Unit
+) {
+
+    BasicAlertDialog(
+        modifier = modifier
+            .safeContentPadding()
+            .fillMaxWidth()
+            .screenMargin(),
+        onDismissRequest = onDismissRequest
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp),
+            colors = CardDefaults.elevatedCardColors(),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.Absolute.SpaceAround
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.clickable { onGalleryClick() }) {
+                    Image(
+                        modifier = Modifier
+                            .border(
+                                BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface), CircleShape
+                            )
+                            .size(100.dp)
+                            .padding(20.dp),
+                        painter = rememberVectorPainter(Icons.Outlined.PhotoLibrary),
+                        contentDescription = ""
+                    )
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .align(Alignment.CenterHorizontally),
+                        text = "Gallery",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                }
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.clickable { onCameraClick() }
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .border(
+                                BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface), CircleShape
+                            )
+                            .size(100.dp)
+                            .padding(20.dp),
+                        painter = rememberVectorPainter(Icons.Outlined.Camera),
+                        contentDescription = ""
+                    )
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .align(Alignment.CenterHorizontally),
+                        text = "Camera",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
         }
-
     }
 }
 
@@ -180,20 +311,18 @@ fun onBackPressed(navController: NavHostController, pagerState: PagerState, scop
 fun UiFormProfessional(
     proState: ProfessionalModel,
     eduState: EducationModel,
-    onUpdateProfessionalState: (ProfessionalModel) -> Unit,
-    onUpdateEducationState: (EducationModel) -> Unit,
-    onValidate: (Form) -> Unit
+    onUiRegisterUserActions: (UiRegisterUserActions) -> Unit
 ) {
 
 
     Column(
-        modifier = Modifier.verticalScroll(rememberScrollState())
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
 
         Text(
-            text = "Educational Info",
-            textAlign = TextAlign.Start,
-            fontWeight = FontWeight.Bold
+            text = "Educational Info", textAlign = TextAlign.Start, fontWeight = FontWeight.Bold
         )
 
         VerticalSpacer(5.dp)
@@ -210,20 +339,30 @@ fun UiFormProfessional(
             value = eduState.education,
             placeHolderText = "Select",
             onValueChange = { value ->
-                onUpdateEducationState(eduState.copy(education = value))
-            }
-        )
+                onUiRegisterUserActions(
+                    UiRegisterUserActions.OnUpdateEducationModel(
+                        eduState.copy(
+                            education = value
+                        )
+                    )
+                )
+            })
 
         HeadlineTextField(
             value = eduState.yearOfPassing,
             onValueChange = { value ->
-                onUpdateEducationState(eduState.copy(yearOfPassing = value))
+                onUiRegisterUserActions(
+                    UiRegisterUserActions.OnUpdateEducationModel(
+                        eduState.copy(
+                            yearOfPassing = value
+                        )
+                    )
+                )
             },
             placeHolderText = "Year of passing",
             imageVector = Icons.TwoTone.School,
             keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Next,
-                keyboardType = KeyboardType.Number
+                imeAction = ImeAction.Next, keyboardType = KeyboardType.Number
             ),
             paddingValues = PaddingValues(bottom = 12.dp)
         )
@@ -231,7 +370,13 @@ fun UiFormProfessional(
         HeadlineTextField(
             value = eduState.grade,
             onValueChange = { value ->
-                onUpdateEducationState(eduState.copy(grade = value))
+                onUiRegisterUserActions(
+                    UiRegisterUserActions.OnUpdateEducationModel(
+                        eduState.copy(
+                            grade = value
+                        )
+                    )
+                )
             },
             placeHolderText = "Grade",
             imageVector = Icons.TwoTone.School,
@@ -242,9 +387,7 @@ fun UiFormProfessional(
         VerticalSpacer(10.dp)
 
         Text(
-            text = "Professional Info",
-            textAlign = TextAlign.Start,
-            fontWeight = FontWeight.Bold
+            text = "Professional Info", textAlign = TextAlign.Start, fontWeight = FontWeight.Bold
         )
 
         VerticalSpacer(5.dp)
@@ -252,13 +395,18 @@ fun UiFormProfessional(
         HeadlineTextField(
             value = proState.experience,
             onValueChange = { value ->
-                onUpdateProfessionalState(proState.copy(experience = value))
+                onUiRegisterUserActions(
+                    UiRegisterUserActions.OnUpdateProfessionalState(
+                        proState.copy(
+                            experience = value
+                        )
+                    )
+                )
             },
             placeHolderText = "Experience",
             imageVector = Icons.TwoTone.Work,
             keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Next,
-                keyboardType = KeyboardType.Number
+                imeAction = ImeAction.Next, keyboardType = KeyboardType.Number
             ),
             paddingValues = PaddingValues(bottom = 12.dp)
         )
@@ -266,7 +414,13 @@ fun UiFormProfessional(
         HeadlineTextField(
             value = proState.designation,
             onValueChange = { value ->
-                onUpdateProfessionalState(proState.copy(designation = value))
+                onUiRegisterUserActions(
+                    UiRegisterUserActions.OnUpdateProfessionalState(
+                        proState.copy(
+                            designation = value
+                        )
+                    )
+                )
             },
             placeHolderText = "Designation",
             imageVector = Icons.TwoTone.Work,
@@ -279,9 +433,11 @@ fun UiFormProfessional(
         HeadlineTextField(
             value = proState.domain,
             onValueChange = { value ->
-                onUpdateProfessionalState(
-                    proState.copy(
-                        domain = value,
+                onUiRegisterUserActions(
+                    UiRegisterUserActions.OnUpdateProfessionalState(
+                        proState.copy(
+                            domain = value,
+                        )
                     )
                 )
             },
@@ -297,9 +453,8 @@ fun UiFormProfessional(
         Button(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(top = 15.dp),
-            onClick = {
-                onValidate(Form.Professional)
+                .padding(top = 15.dp), onClick = {
+                onUiRegisterUserActions(UiRegisterUserActions.OnValidate(Form.Professional))
             }) {
             Text("Register")
         }
@@ -310,16 +465,35 @@ fun UiFormProfessional(
 @Composable
 fun UiFormUser(
     state: UserDataModel,
-    onUpdateState: (UserDataModel) -> Unit,
-    onValidate: (Form) -> Unit
+    onUiRegisterUserActions: (UiRegisterUserActions) -> Unit,
+    modifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier.verticalScroll(rememberScrollState())
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
+        Box(Modifier.align(Alignment.CenterHorizontally)) {
+            Image(
+                modifier = imageModifier
+                    .border(
+                        BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface),
+                        RoundedCornerShape(topStart = 20.dp, bottomEnd = 20.dp)
+                    )
+                    .size(100.dp)
+                    .padding(10.dp),
+                painter = if (state.imageUri.isNotEmpty()) rememberAsyncImagePainter(state.imageUri) else rememberVectorPainter(
+                    Icons.Outlined.AddAPhoto
+                ),
+                contentDescription = ""
+            )
+        }
+
         HeadlineTextField(
             value = state.firstName,
             onValueChange = { value ->
-                onUpdateState(state.copy(firstName = value))
+                onUiRegisterUserActions(UiRegisterUserActions.OnUpdateUserState(state.copy(firstName = value)))
             },
             placeHolderText = "First Name",
             imageVector = Icons.TwoTone.AccountCircle,
@@ -330,7 +504,7 @@ fun UiFormUser(
         HeadlineTextField(
             value = state.lastName,
             onValueChange = { value ->
-                onUpdateState(state.copy(lastName = value))
+                onUiRegisterUserActions(UiRegisterUserActions.OnUpdateUserState(state.copy(lastName = value)))
             },
             placeHolderText = "Last Name",
             imageVector = Icons.TwoTone.AccountCircle,
@@ -341,7 +515,13 @@ fun UiFormUser(
         HeadlineTextField(
             value = state.phoneNumber,
             onValueChange = { value ->
-                onUpdateState(state.copy(phoneNumber = value))
+                onUiRegisterUserActions(
+                    UiRegisterUserActions.OnUpdateUserState(
+                        state.copy(
+                            phoneNumber = value
+                        )
+                    )
+                )
             },
             placeHolderText = "Phone Number",
             imageVector = Icons.TwoTone.Phone,
@@ -354,7 +534,7 @@ fun UiFormUser(
         HeadlineTextField(
             value = state.email,
             onValueChange = { value ->
-                onUpdateState(state.copy(email = value))
+                onUiRegisterUserActions(UiRegisterUserActions.OnUpdateUserState(state.copy(email = value)))
             },
             placeHolderText = "Email",
             imageVector = Icons.TwoTone.Email,
@@ -377,7 +557,13 @@ fun UiFormUser(
                 selected = gender == Gender.Male,
                 onClick = {
                     gender = Gender.Male
-                    onUpdateState(state.copy(gender = gender.toString()))
+                    onUiRegisterUserActions(
+                        UiRegisterUserActions.OnUpdateUserState(
+                            state.copy(
+                                gender = gender.toString()
+                            )
+                        )
+                    )
                 },
                 modifier = Modifier.size(30.dp),
             )
@@ -387,7 +573,13 @@ fun UiFormUser(
                 selected = gender == Gender.Female,
                 onClick = {
                     gender = Gender.Female
-                    onUpdateState(state.copy(gender = gender.toString()))
+                    onUiRegisterUserActions(
+                        UiRegisterUserActions.OnUpdateUserState(
+                            state.copy(
+                                gender = gender.toString()
+                            )
+                        )
+                    )
                 },
                 modifier = Modifier
                     .padding(start = 15.dp)
@@ -400,7 +592,7 @@ fun UiFormUser(
         HeadlineTextField(
             value = state.password,
             onValueChange = { value ->
-                onUpdateState(state.copy(password = value))
+                onUiRegisterUserActions(UiRegisterUserActions.OnUpdateUserState(state.copy(password = value)))
             },
             placeHolderText = "Password",
             imageVector = Icons.TwoTone.Lock,
@@ -422,8 +614,7 @@ fun UiFormUser(
             placeHolderText = "Confirm Password",
             imageVector = Icons.TwoTone.Lock,
             keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Next
+                keyboardType = KeyboardType.Password, imeAction = ImeAction.Next
             ),
             paddingValues = PaddingValues(bottom = 12.dp),
         )
@@ -431,9 +622,8 @@ fun UiFormUser(
         Button(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(top = 15.dp),
-            onClick = {
-                onValidate(Form.User)
+                .padding(top = 15.dp), onClick = {
+                onUiRegisterUserActions(UiRegisterUserActions.OnValidate(Form.User))
             }) {
             Text("NEXT")
         }
@@ -442,17 +632,23 @@ fun UiFormUser(
 
 @Composable
 fun UiFormAddress(
-    state: AddressModel,
-    onUpdateAddress: (AddressModel) -> Unit,
-    onValidate: (Form) -> Unit
+    state: AddressModel, onUiRegisterUserActions: (UiRegisterUserActions) -> Unit
 ) {
     Column(
-        modifier = Modifier.verticalScroll(rememberScrollState())
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
         HeadlineTextField(
             value = state.address,
             onValueChange = { value ->
-                onUpdateAddress(state.copy(address = value))
+                onUiRegisterUserActions(
+                    UiRegisterUserActions.OnUpdateAddressState(
+                        state.copy(
+                            address = value
+                        )
+                    )
+                )
             },
             placeHolderText = "Address",
             imageVector = Icons.Rounded.LocationCity,
@@ -465,7 +661,13 @@ fun UiFormAddress(
         HeadlineTextField(
             value = state.landmark,
             onValueChange = { value ->
-                onUpdateAddress(state.copy(landmark = value))
+                onUiRegisterUserActions(
+                    UiRegisterUserActions.OnUpdateAddressState(
+                        (state.copy(
+                            landmark = value
+                        ))
+                    )
+                )
             },
             placeHolderText = "Landmark",
             imageVector = Icons.Rounded.LocationCity,
@@ -477,9 +679,7 @@ fun UiFormAddress(
 
 
         Text(
-            text = "State",
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.bodyLarge
+            text = "State", textAlign = TextAlign.Start, style = MaterialTheme.typography.bodyLarge
         )
         CustomDropDown(
             arrString = arrStatesList,
@@ -487,31 +687,26 @@ fun UiFormAddress(
             value = state.state,
             placeHolderText = "Select",
             onValueChange = { value ->
-                onUpdateAddress(state.copy(state = value))
-            }
-        )
+                onUiRegisterUserActions(UiRegisterUserActions.OnUpdateAddressState((state.copy(state = value))))
+            })
 
         HeadlineTextField(
             value = state.city,
             onValueChange = { value ->
-                onUpdateAddress(state.copy(city = value))
+                onUiRegisterUserActions(UiRegisterUserActions.OnUpdateAddressState((state.copy(city = value))))
             },
             placeHolderText = "City",
             imageVector = Icons.Rounded.LocationCity,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
             paddingValues = PaddingValues(bottom = 12.dp)
         )
 
         Button(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(top = 15.dp),
-            onClick = {
-                onValidate(Form.Address)
-            }
-        ) {
+                .padding(top = 15.dp), onClick = {
+                onUiRegisterUserActions(UiRegisterUserActions.OnValidate(Form.Address))
+            }) {
             Text("NEXT")
         }
 
@@ -519,36 +714,17 @@ fun UiFormAddress(
 }
 
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true
+)
 @Composable
 private fun UiRegisterUserPreview() {
     AppTheme {
         Surface(modifier = Modifier.padding(12.dp)) {
-            UiFormAddress(
-                state = AddressModel(),
-                onUpdateAddress = {
+            UiFormUser(
+                state = UserDataModel(), onUiRegisterUserActions = {
 
-                },
-                onValidate = {
-
-                }
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun UiRegisterProfessionalPreview() {
-    AppTheme() {
-        Surface(modifier = Modifier.padding(12.dp)) {
-            UiFormProfessional(
-                proState = ProfessionalModel(),
-                eduState = EducationModel(),
-                onUpdateProfessionalState = {},
-                onUpdateEducationState = {},
-                onValidate = {}
-            )
+                })
         }
     }
 }

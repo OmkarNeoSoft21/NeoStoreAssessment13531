@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 data class UserTable(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("user_id") val userId: Int = 0,
+    @ColumnInfo("user_image_uri") val imageUri: String,
     @ColumnInfo("first_name") val firstName: String,
     @ColumnInfo("last_name") val lastName: String,
     @ColumnInfo("phone_no") val phoneNumber: String,

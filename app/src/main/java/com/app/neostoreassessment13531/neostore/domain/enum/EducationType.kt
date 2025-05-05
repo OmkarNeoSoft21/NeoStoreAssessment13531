@@ -8,3 +8,4 @@ enum class EducationType (val typeName:String){
     HSC_DIPLOMA("HSC/Diploma"),
     SSC("SSC"),
 }
+

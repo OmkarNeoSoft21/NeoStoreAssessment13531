@@ -8,6 +8,7 @@ data class UserDataModel(
     val email: String = "",
     val gender: String = "",
     val password: String = "",
+    val imageUri: String = "",
     val addressModel: AddressModel ?= null,
     val educationModel: EducationModel ?= null,
     val professional: ProfessionalModel ?= null

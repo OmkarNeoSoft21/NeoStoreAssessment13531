@@ -1,10 +1,5 @@
 package com.app.neostoreassessment13531.neostore.data.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.map
-import com.app.neostoreassessment13531.neostore.data.local.entities.UserTable
-import com.app.neostoreassessment13531.neostore.data.local.intermediary.UserWithAddress
 import com.app.neostoreassessment13531.neostore.data.local.repository.LocalDataSourceUser
 import com.app.neostoreassessment13531.neostore.data.toAddressModel
 import com.app.neostoreassessment13531.neostore.data.toAddressTable
@@ -16,7 +11,7 @@ import com.app.neostoreassessment13531.neostore.data.toUserDataModel
 import com.app.neostoreassessment13531.neostore.data.toUserTable
 import com.app.neostoreassessment13531.neostore.domain.model.RegisterUserModel
 import com.app.neostoreassessment13531.neostore.domain.model.UserDataModel
-import com.app.neostoreassessment13531.neostore.domain.repo.RepositoryUser
+import com.app.neostoreassessment13531.neostore.domain.repository.RepositoryUser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

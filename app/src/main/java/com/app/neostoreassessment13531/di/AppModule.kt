@@ -2,7 +2,7 @@ package com.app.neostoreassessment13531.di
 
 import com.app.neostoreassessment13531.neostore.data.local.repository.LocalDataSourceUser
 import com.app.neostoreassessment13531.neostore.data.repository.RepositoryUserImpl
-import com.app.neostoreassessment13531.neostore.domain.repo.RepositoryUser
+import com.app.neostoreassessment13531.neostore.domain.repository.RepositoryUser
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

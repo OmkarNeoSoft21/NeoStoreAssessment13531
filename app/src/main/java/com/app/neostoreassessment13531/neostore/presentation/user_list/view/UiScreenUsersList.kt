@@ -67,7 +67,7 @@ fun UiUserList(
                     .align(Alignment.Center)
                     .size(50.dp))
             } else {
-                LazyColumn {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
                     if (state?.usersList?.isEmpty() == true) {
                         item {
                             Text(

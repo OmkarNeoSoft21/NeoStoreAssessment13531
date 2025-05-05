@@ -1,6 +1,5 @@
-package com.app.neostoreassessment13531.neostore.domain.repo
+package com.app.neostoreassessment13531.neostore.domain.repository
 
-import androidx.lifecycle.LiveData
 import com.app.neostoreassessment13531.neostore.domain.model.RegisterUserModel
 import com.app.neostoreassessment13531.neostore.domain.model.UserDataModel
 import kotlinx.coroutines.flow.Flow
