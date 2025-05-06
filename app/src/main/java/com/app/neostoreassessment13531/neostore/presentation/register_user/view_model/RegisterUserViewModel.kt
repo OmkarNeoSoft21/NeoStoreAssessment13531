@@ -7,8 +7,8 @@ import com.app.neostoreassessment13531.core.snackbar.SnackBarData
 import com.app.neostoreassessment13531.core.util.ScreenState
 import com.app.neostoreassessment13531.core.util.UiState
 import com.app.neostoreassessment13531.neostore.domain.enum.Form
+import com.app.neostoreassessment13531.neostore.domain.model.RegisterUserModel
 import com.app.neostoreassessment13531.neostore.domain.repository.RepositoryUser
-import com.app.neostoreassessment13531.neostore.domain.util.HelperFun
 import com.app.neostoreassessment13531.neostore.presentation.register_user.state.StateRegisterUser
 import com.app.neostoreassessment13531.neostore.presentation.register_user.state.UiRegisterUserActions
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +26,7 @@ class RegisterUserViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<UiState<StateRegisterUser>> =
-        MutableStateFlow(UiState(state = StateRegisterUser(HelperFun.getDummyRegisterUserModel())))
+        MutableStateFlow(UiState(state = StateRegisterUser(RegisterUserModel())))
     val state = _state.asStateFlow()
 
     fun validateUser(onValidated: () -> Unit) {
