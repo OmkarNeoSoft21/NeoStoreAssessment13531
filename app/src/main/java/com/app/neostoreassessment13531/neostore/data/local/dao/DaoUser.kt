@@ -17,7 +17,7 @@ import com.app.neostoreassessment13531.neostore.data.local.intermediary.UserWith
 interface DaoUser {
 
     @Query("Select * from UserTable where user_id=:userId")
-    fun getUserInfo(userId:String):UserWithAddress
+    suspend fun getUserInfo(userId:String):UserWithAddress
 
     @Query("Select * from UserTable")
     fun getAllUsers():LiveData<List<UserWithAddress>>

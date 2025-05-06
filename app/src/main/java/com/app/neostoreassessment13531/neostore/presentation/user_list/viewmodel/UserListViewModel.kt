@@ -8,12 +8,8 @@ import com.app.neostoreassessment13531.neostore.domain.repository.RepositoryUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,11 +23,11 @@ class UserListViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        loadSampleData()
+        loadUserList()
     }
 
-    private fun loadSampleData() {
-        viewModelScope.launch(Dispatchers.Main) {
+    private fun loadUserList() {
+        viewModelScope.launch(Dispatchers.IO) {
             repositoryUser
                 .getAllUsers()
                 .collectLatest { list  ->

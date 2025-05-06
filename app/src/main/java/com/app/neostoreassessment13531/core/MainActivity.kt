@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
@@ -41,6 +43,7 @@ import com.app.neostoreassessment13531.core.snackbar.SnackBarController
 import com.app.neostoreassessment13531.core.ui.theme.AppTheme
 import com.app.neostoreassessment13531.core.util.CollectFlowEvents
 import com.app.neostoreassessment13531.neostore.presentation.register_user.view.UiScreenRegisterUser
+import com.app.neostoreassessment13531.neostore.presentation.user_details.view.UiScreenUserDetail
 import com.app.neostoreassessment13531.neostore.presentation.user_list.view.UiScreenUsersList
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -60,6 +63,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun NeoStoreApp() {
     val navController = rememberNavController()
@@ -73,22 +77,31 @@ fun NeoStoreApp() {
     }
     CompositionLocalProvider(LocalNavController provides navController) {
         Box {
-            NavHost(
-                navController = navController,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .imePadding(),
-                startDestination = Route.UserList
-            ) {
-                composable<Route.UserList> {
-                    UiScreenUsersList()
-                }
-                composable<Route.UserDetails> {
-                    val id: Route.UserDetails = it.toRoute()
-
-                }
-                composable<Route.RegisterUser> {
-                    UiScreenRegisterUser()
+            SharedTransitionLayout {
+                NavHost(
+                    navController = navController,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .imePadding(),
+                    startDestination = Route.UserList
+                ) {
+                    composable<Route.UserList> {
+                        UiScreenUsersList(
+                            sharedTransitionScope = this@SharedTransitionLayout,
+                            animatedContentScope = this@composable
+                        )
+                    }
+                    composable<Route.UserDetails> {
+                        val user: Route.UserDetails = it.toRoute()
+                        UiScreenUserDetail(
+                            user.userId,
+                            sharedTransitionScope = this@SharedTransitionLayout,
+                            animatedContentScope = this@composable
+                        )
+                    }
+                    composable<Route.RegisterUser> {
+                        UiScreenRegisterUser()
+                    }
                 }
             }
             SnackbarHost(
@@ -98,15 +111,20 @@ fun NeoStoreApp() {
                     .align(Alignment.TopCenter),
                 snackbar = { snackBarData ->
                     Snackbar(
-                        modifier = Modifier.fillMaxWidth()
-                            .windowInsetsTopHeight(WindowInsets.Companion.statusBars.add(
-                                WindowInsets(top = 70.dp)
-                            )),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .windowInsetsTopHeight(
+                                WindowInsets.Companion.statusBars.add(
+                                    WindowInsets(top = 70.dp)
+                                )
+                            ),
                         shape = RectangleShape,
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
                     ) {
                         Text(
-                            modifier = Modifier.fillMaxSize().safeDrawingPadding(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .safeDrawingPadding(),
                             text = snackBarData.visuals.message,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -117,6 +135,8 @@ fun NeoStoreApp() {
         }
     }
 }
+
+
 
 
 

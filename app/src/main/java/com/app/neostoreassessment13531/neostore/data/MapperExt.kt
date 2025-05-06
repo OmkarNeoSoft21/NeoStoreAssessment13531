@@ -54,7 +54,8 @@ fun UserTable.toUserDataModel(): UserDataModel {
         lastName = lastName,
         phoneNumber = phoneNumber,
         email = email,
-        gender = gender
+        gender = gender,
+        imageUri  = imageUri
     )
 }
 

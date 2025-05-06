@@ -1,10 +1,15 @@
 package com.app.neostoreassessment13531.neostore.presentation.user_list.view
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -35,52 +40,66 @@ import com.app.neostoreassessment13531.neostore.presentation.user_list.component
 import com.app.neostoreassessment13531.neostore.presentation.user_list.state.StateUserList
 import com.app.neostoreassessment13531.neostore.presentation.user_list.viewmodel.UserListViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun UiScreenUsersList(
-    viewModel: UserListViewModel = hiltViewModel()
+    viewModel: UserListViewModel = hiltViewModel(),
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val navController = LocalNavController.current
     UiUserList(
         screenState = uiState.screenState,
-        state = uiState.state
+        state = uiState.state,
+        sharedTransitionScope = sharedTransitionScope,
+        animatedContentScope = animatedContentScope
     ) {
         navController.navigate(it)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun UiUserList(
     screenState: ScreenState,
     state: StateUserList?,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
     toNavigate: (Route) -> Unit
 ) {
     Scaffold(topBar = {
         CustomToolbar("User List")
     }) { padding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
             if (screenState == ScreenState.Loading) {
-                CircularProgressIndicator(modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(50.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(50.dp)
+                )
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    if (state?.usersList?.isEmpty() == true) {
-                        item {
-                            Text(
-                                "No User Found",
-                                modifier = Modifier.fillMaxSize(),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    } else {
-                        items(items = state?.usersList?.toList() ?: listOf()) {
-                            UserListItem(it)
-                        }
+                    items(items = state?.usersList?.toList() ?: listOf()) {
+                        UserListItem(
+                            it, modifier = Modifier.clickable {
+                                toNavigate(Route.UserDetails(it.id))
+                            },
+                            sharedTransitionScope = sharedTransitionScope,
+                            animatedContentScope = animatedContentScope
+                        )
                     }
+                }
+                if (state?.usersList?.isEmpty() == true) {
+                    Text(
+                        "No User Found",
+                        modifier = Modifier.wrapContentWidth().align(Alignment.Center),
+                        textAlign = TextAlign.Center
+                    )
                 }
                 FloatingActionButton(
                     modifier = Modifier
@@ -105,12 +124,6 @@ fun UiUserList(
 @Composable
 private fun UiUserListPreview() {
     AppTheme(dynamicColor = false) {
-        UiUserList(
-            screenState = ScreenState.None,
-            state = StateUserList(
-                usersList = arrayListOf(dummyUserDataModel, dummyUserDataModel)
-            )){
 
-        }
     }
 }

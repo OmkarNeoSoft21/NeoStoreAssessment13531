@@ -1,6 +1,5 @@
 package com.app.neostoreassessment13531.neostore.data.local.repository
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
 import com.app.neostoreassessment13531.neostore.data.local.dao.DaoUser
 import com.app.neostoreassessment13531.neostore.data.local.entities.AddressTable
@@ -9,7 +8,7 @@ import com.app.neostoreassessment13531.neostore.data.local.entities.Professional
 import com.app.neostoreassessment13531.neostore.data.local.entities.UserTable
 import com.app.neostoreassessment13531.neostore.data.local.intermediary.UserWithAddress
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 class LocalDataSourceUserImpl @Inject constructor(private val daoUser: DaoUser) :
@@ -18,10 +17,9 @@ class LocalDataSourceUserImpl @Inject constructor(private val daoUser: DaoUser) 
         return daoUser.getAllUsers().asFlow()
     }
 
-    override fun getUserInfo(userId: String): Flow<UserWithAddress> {
-        return flow {
-            daoUser.getUserInfo(userId)
-        }
+    override suspend fun getUserInfo(userId: String): Flow<UserWithAddress> {
+        val userTable = daoUser.getUserInfo(userId)
+        return flowOf(userTable)
     }
 
     override suspend fun saveUserInfo(user: UserTable): Int {

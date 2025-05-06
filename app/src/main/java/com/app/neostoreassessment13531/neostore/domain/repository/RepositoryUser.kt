@@ -5,7 +5,7 @@ import com.app.neostoreassessment13531.neostore.domain.model.UserDataModel
 import kotlinx.coroutines.flow.Flow
 
 interface RepositoryUser {
-    fun getUserInfo(userId: String): Flow<UserDataModel>
+    suspend fun getUserInfo(userId: String): Flow<UserDataModel>
 
     fun getAllUsers(): Flow<List<UserDataModel>>
 

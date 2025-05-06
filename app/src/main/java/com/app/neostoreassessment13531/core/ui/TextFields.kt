@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,7 +40,7 @@ fun HeadlineTextField(
     placeHolderText:String,
     imageVector: ImageVector ?= null,
     paddingValues: PaddingValues= PaddingValues(),
-    shape: Shape = RoundedCornerShape(topEnd = 20.dp, bottomStart = 20.dp),
+    shape: Shape = RoundedCornerShape(topEnd = 20.dp, bottomStart = 20.dp, bottomEnd = 20.dp),
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -55,7 +56,7 @@ fun HeadlineTextField(
     Text(
         text= placeHolderText,
         textAlign = TextAlign.Start,
-        style = MaterialTheme.typography.bodyLarge
+        style = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.primary)
     )
     OutlinedTextField(
         modifier = modifier
@@ -76,7 +77,9 @@ fun HeadlineTextField(
             if (imageVector != null) {
                 Image(
                     imageVector = imageVector,
-                    contentDescription = "")
+                    contentDescription = "",
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                )
             }
         },
         shape = shape,
@@ -91,7 +94,8 @@ fun HeadlineTextField(
                         IconButton(onClick = { showPassword = false }) {
                             Icon(
                                 imageVector = Icons.Filled.Visibility,
-                                contentDescription = "hide_password"
+                                contentDescription = "hide_password",
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     } else {
@@ -99,7 +103,8 @@ fun HeadlineTextField(
                             onClick = { showPassword = true }) {
                             Icon(
                                 imageVector = Icons.Filled.VisibilityOff,
-                                contentDescription = "hide_password"
+                                contentDescription = "hide_password",
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }

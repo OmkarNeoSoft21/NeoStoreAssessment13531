@@ -12,7 +12,7 @@ interface LocalDataSourceUser {
 
     fun getAllUserInfo(): Flow<List<UserWithAddress>>
 
-    fun getUserInfo(userId: String): Flow<UserWithAddress>
+    suspend fun getUserInfo(userId: String): Flow<UserWithAddress>
 
     suspend fun saveUserInfo(user: UserTable) : Int
 

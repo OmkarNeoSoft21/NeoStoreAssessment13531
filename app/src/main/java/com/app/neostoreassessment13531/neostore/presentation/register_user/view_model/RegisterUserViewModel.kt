@@ -7,12 +7,8 @@ import com.app.neostoreassessment13531.core.snackbar.SnackBarData
 import com.app.neostoreassessment13531.core.util.ScreenState
 import com.app.neostoreassessment13531.core.util.UiState
 import com.app.neostoreassessment13531.neostore.domain.enum.Form
-import com.app.neostoreassessment13531.neostore.domain.model.AddressModel
-import com.app.neostoreassessment13531.neostore.domain.model.EducationModel
-import com.app.neostoreassessment13531.neostore.domain.model.ProfessionalModel
-import com.app.neostoreassessment13531.neostore.domain.model.RegisterUserModel
-import com.app.neostoreassessment13531.neostore.domain.model.UserDataModel
 import com.app.neostoreassessment13531.neostore.domain.repository.RepositoryUser
+import com.app.neostoreassessment13531.neostore.domain.util.HelperFun
 import com.app.neostoreassessment13531.neostore.presentation.register_user.state.StateRegisterUser
 import com.app.neostoreassessment13531.neostore.presentation.register_user.state.UiRegisterUserActions
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +26,7 @@ class RegisterUserViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<UiState<StateRegisterUser>> =
-        MutableStateFlow(UiState(state = StateRegisterUser(getDummyRegisterUserModel())))
+        MutableStateFlow(UiState(state = StateRegisterUser(HelperFun.getDummyRegisterUserModel())))
     val state = _state.asStateFlow()
 
     fun validateUser(onValidated: () -> Unit) {
@@ -85,7 +81,7 @@ class RegisterUserViewModel @Inject constructor(
         }
     }
 
-    fun onUserAction(action: UiRegisterUserActions ,onNextPage:()->Unit ,onRegisterUserCompletion:()->Unit) {
+    fun onUserAction(action: UiRegisterUserActions ,onNextPage:()->Unit , onRegisterUserCompletion:()->Unit) {
         when (action) {
             is UiRegisterUserActions.OnUpdateAddressState -> {
                 _state.update {
@@ -162,33 +158,6 @@ class RegisterUserViewModel @Inject constructor(
     }
 
 
-    fun getDummyRegisterUserModel(): RegisterUserModel {
-        return RegisterUserModel(
-            user = UserDataModel(
-                firstName = "John",
-                lastName = "Doe",
-                phoneNumber = "1234567890",
-                email = "john.doe@example.com",
-                gender = "Male",
-                password = "password123",
-            ),
-            address = AddressModel(
-                address = "123 Main St",
-                landmark = "Near the park",
-                city = "Anytown",
-                state = "California"
-            ),
-            education = EducationModel(
-                education = "Bachelor's Degree",
-                yearOfPassing = "2020",
-                grade = "3.5"
-            ),
-            professional = ProfessionalModel(
-                experience = "3",
-                designation = "Software Engineer",
-                domain = "Technology"
-            )
-        )
-    }
+
 
 }

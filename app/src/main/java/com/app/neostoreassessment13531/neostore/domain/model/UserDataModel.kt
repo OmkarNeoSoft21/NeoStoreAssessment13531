@@ -9,9 +9,9 @@ data class UserDataModel(
     val gender: String = "",
     val password: String = "",
     val imageUri: String = "",
-    val addressModel: AddressModel ?= null,
-    val educationModel: EducationModel ?= null,
-    val professional: ProfessionalModel ?= null
+    val addressModel: AddressModel? = null,
+    val educationModel: EducationModel? = null,
+    val professional: ProfessionalModel? = null,
 )
 
 
@@ -20,5 +20,5 @@ val dummyUserDataModel = UserDataModel(
     lastName = "Sawant",
     phoneNumber = "8779876543",
     email = "okmbvfg@dfbnm.coc",
-    gender = "Male",
+    gender = "Male"
 )

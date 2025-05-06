@@ -19,14 +19,13 @@ import javax.inject.Inject
 class RepositoryUserImpl @Inject constructor(
     private val localDataSourceUser: LocalDataSourceUser
 ) : RepositoryUser {
-    override fun getUserInfo(userId: String): Flow<UserDataModel> {
+    override suspend fun getUserInfo(userId: String): Flow<UserDataModel> {
         return localDataSourceUser.getUserInfo(userId).map {
-            it.user.toUserDataModel()
-                .copy(
-                    addressModel = it.address.toAddressModel(),
-                    educationModel = it.education.toEducationModel(),
-                    professional = it.professionalInfo.toProfessionalModel()
-                )
+            it.user.toUserDataModel().copy(
+                addressModel = it.address.toAddressModel(),
+                educationModel = it.education.toEducationModel(),
+                professional = it.professionalInfo.toProfessionalModel()
+            )
         }
     }
 

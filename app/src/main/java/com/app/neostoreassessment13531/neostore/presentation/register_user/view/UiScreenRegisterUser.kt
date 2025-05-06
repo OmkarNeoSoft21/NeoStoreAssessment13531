@@ -1,5 +1,6 @@
 package com.app.neostoreassessment13531.neostore.presentation.register_user.view
 
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -64,6 +65,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -88,6 +90,8 @@ import com.app.neostoreassessment13531.neostore.presentation.register_user.state
 import com.app.neostoreassessment13531.neostore.presentation.register_user.view_model.RegisterUserViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
+import java.io.File
 
 
 @Composable
@@ -142,7 +146,16 @@ fun UiRegisterUser(
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            onUiRegisterUserActions(UiRegisterUserActions.OnUpdateUserState(state.user.copy(imageUri = uri.toString())))
+            uri?.let {
+                val contentResolver = context.contentResolver
+                try {
+                    contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    val uriString = it.toString()
+                    onUiRegisterUserActions(UiRegisterUserActions.OnUpdateUserState(state.user.copy(imageUri = uriString)))
+                } catch (e: SecurityException) {
+                    e.printStackTrace()
+                }
+            }
         }
     BackHandler(true) {
         onUiRegisterUserActions.invoke(UiRegisterUserActions.OnBackPressed)
@@ -479,13 +492,14 @@ fun UiFormUser(
                 modifier = imageModifier
                     .border(
                         BorderStroke(2.dp, MaterialTheme.colorScheme.onSurface),
-                        RoundedCornerShape(topStart = 20.dp, bottomEnd = 20.dp)
+                        RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
                     )
                     .size(100.dp)
                     .padding(10.dp),
-                painter = if (state.imageUri.isNotEmpty()) rememberAsyncImagePainter(state.imageUri) else rememberVectorPainter(
-                    Icons.Outlined.AddAPhoto
-                ),
+                painter = if (state.imageUri.isNotEmpty())
+                    rememberAsyncImagePainter(state.imageUri.toUri())
+                else
+                    rememberVectorPainter(Icons.Outlined.AddAPhoto),
                 contentDescription = ""
             )
         }
@@ -722,7 +736,8 @@ private fun UiRegisterUserPreview() {
     AppTheme {
         Surface(modifier = Modifier.padding(12.dp)) {
             UiFormUser(
-                state = UserDataModel(), onUiRegisterUserActions = {
+                state = UserDataModel(),
+                onUiRegisterUserActions = {
 
                 })
         }
