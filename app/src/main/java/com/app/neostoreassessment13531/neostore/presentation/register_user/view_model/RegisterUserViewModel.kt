@@ -7,6 +7,7 @@ import com.app.neostoreassessment13531.core.snackbar.SnackBarData
 import com.app.neostoreassessment13531.core.util.ScreenState
 import com.app.neostoreassessment13531.core.util.UiState
 import com.app.neostoreassessment13531.neostore.domain.enum.Form
+import com.app.neostoreassessment13531.neostore.domain.model.RegisterUserModel
 import com.app.neostoreassessment13531.neostore.domain.repository.RepositoryUser
 import com.app.neostoreassessment13531.neostore.domain.util.HelperFun
 import com.app.neostoreassessment13531.neostore.presentation.register_user.state.StateRegisterUser
@@ -26,7 +27,7 @@ class RegisterUserViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<UiState<StateRegisterUser>> =
-        MutableStateFlow(UiState(state = StateRegisterUser(HelperFun.getDummyRegisterUserModel())))
+        MutableStateFlow(UiState(state = StateRegisterUser(RegisterUserModel())))
     val state = _state.asStateFlow()
 
     fun validateUser(onValidated: () -> Unit) {
@@ -72,7 +73,7 @@ class RegisterUserViewModel @Inject constructor(
                 Pair(education.grade.isEmpty(), "Please enter your grade"),
                 Pair(professional.experience.isEmpty(), "Please enter no of years experience"),
                 Pair(professional.designation.isEmpty(), "Please enter designation"),
-                Pair(professional.domain.isEmpty(), "Please enter domain"),
+                Pair(professional.domain.isEmpty(), "Please enter domain")
             ).firstOrNull {
                 it.first
             }?.run {
