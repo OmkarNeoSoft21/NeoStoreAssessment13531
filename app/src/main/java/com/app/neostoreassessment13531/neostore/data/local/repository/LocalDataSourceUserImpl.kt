@@ -2,11 +2,13 @@ package com.app.neostoreassessment13531.neostore.data.local.repository
 
 import androidx.lifecycle.asFlow
 import com.app.neostoreassessment13531.neostore.data.local.dao.DaoUser
-import com.app.neostoreassessment13531.neostore.data.local.entities.AddressTable
-import com.app.neostoreassessment13531.neostore.data.local.entities.EducationInfoTable
-import com.app.neostoreassessment13531.neostore.data.local.entities.ProfessionalInfoTable
 import com.app.neostoreassessment13531.neostore.data.local.entities.UserTable
 import com.app.neostoreassessment13531.neostore.data.local.intermediary.UserWithAddress
+import com.app.neostoreassessment13531.neostore.data.toAddressTable
+import com.app.neostoreassessment13531.neostore.data.toEducationInfoTable
+import com.app.neostoreassessment13531.neostore.data.toProfessionalTable
+import com.app.neostoreassessment13531.neostore.data.toUserTable
+import com.app.neostoreassessment13531.neostore.domain.model.RegisterUserModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
@@ -26,16 +28,17 @@ class LocalDataSourceUserImpl @Inject constructor(private val daoUser: DaoUser) 
        return daoUser.insertUser(user).toInt()
     }
 
-    override suspend fun saveUserAddress(user: AddressTable) {
-        return daoUser.insertAddress(user)
+    override suspend fun isUserPresent(user: UserTable): Boolean {
+        return daoUser.isUserPresent(user.email , user.phoneNumber)
     }
 
-    override suspend fun saveUserProfessional(user: ProfessionalInfoTable) {
-        return daoUser.insertProfessional(user)
-    }
-
-    override suspend fun saveUserEducation(user: EducationInfoTable) {
-        return daoUser.insertEducation(user)
+    override suspend fun saveUserDetails(user: RegisterUserModel){
+        daoUser.insertUserInfo(UserWithAddress(
+            user = user.user.toUserTable(),
+            address = user.address.toAddressTable(),
+            education = user.education.toEducationInfoTable(),
+            professionalInfo = user.professional.toProfessionalTable()
+        ))
     }
 
 }

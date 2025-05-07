@@ -3,8 +3,10 @@ package com.app.neostoreassessment13531.neostore.presentation.user_list.componen
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.net.Uri
 import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,6 +40,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.app.neostoreassessment13531.core.ui.theme.AppTheme
 import com.app.neostoreassessment13531.neostore.domain.model.UserDataModel
 import androidx.core.net.toUri
+import com.app.neostoreassessment13531.core.animation.customBoundsTransform
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -66,12 +69,14 @@ fun UserListItem(
             ) {
                 Image(
                     modifier = Modifier
+                        .sharedBounds(
+                            sharedTransitionScope.rememberSharedContentState(key = "image-${model.id}"),
+                            animatedVisibilityScope = animatedContentScope,
+                            boundsTransform = customBoundsTransform
+                        )
                         .size(100.dp)
                         .clip(RoundedCornerShape(10))
-                        .sharedElement(
-                            sharedTransitionScope.rememberSharedContentState(key = "image-${model.id}"),
-                            animatedVisibilityScope = animatedContentScope
-                        ),
+                    ,
                     painter = if (!model.imageUri.isEmpty())
                         rememberAsyncImagePainter(model.imageUri.toUri())
                     else
@@ -81,18 +86,20 @@ fun UserListItem(
                 )
                 Column(Modifier.fillMaxWidth(0.85f)) {
                     Text(
-                        modifier = Modifier.sharedElement(
+                        modifier = Modifier.sharedBounds(
                             sharedTransitionScope.rememberSharedContentState(key = "name-${model.id}"),
-                            animatedVisibilityScope = animatedContentScope
+                            animatedVisibilityScope = animatedContentScope,
+                            boundsTransform = customBoundsTransform
                         ),
                         text = "${model.firstName} ${model.lastName}",
                         fontWeight = FontWeight.SemiBold,
                         style = MaterialTheme.typography.titleLarge.copy(MaterialTheme.colorScheme.secondary)
                     )
                     Text(
-                        modifier = Modifier.sharedElement(
+                        modifier = Modifier.sharedBounds(
                             sharedTransitionScope.rememberSharedContentState(key = "designation-${model.id}"),
-                            animatedVisibilityScope = animatedContentScope
+                            animatedVisibilityScope = animatedContentScope,
+                            boundsTransform = customBoundsTransform
                         ),
                         text = model.professional?.designation ?: "",
                         style = MaterialTheme.typography.titleSmall

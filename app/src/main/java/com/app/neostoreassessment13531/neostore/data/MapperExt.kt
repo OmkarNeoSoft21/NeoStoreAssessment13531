@@ -20,9 +20,10 @@ fun AddressTable.toAddressModel(): AddressModel {
     )
 }
 
-fun AddressModel.toAddressTable(userId: Int): AddressTable {
+fun AddressModel.toAddressTable(): AddressTable {
     return AddressTable(
-        userId = userId,
+        addressId = addressId,
+        userId = userId.toIntOrNull() ?: 0,
         address = address,
         landmark = landmark,
         city = city,
@@ -32,15 +33,17 @@ fun AddressModel.toAddressTable(userId: Int): AddressTable {
 
 fun EducationInfoTable.toEducationModel(): EducationModel {
     return EducationModel(
+        educationId = edId.toString(),
         education = education,
         yearOfPassing = yearOfPassing,
         grade = grade
     )
 }
 
-fun EducationModel.toEducationInfoTable(userId: Int): EducationInfoTable {
+fun EducationModel.toEducationInfoTable(): EducationInfoTable {
     return EducationInfoTable(
-        userId = userId,
+        userId = 0,
+        edId = educationId.toIntOrNull() ?: 0,
         education = education,
         yearOfPassing = yearOfPassing,
         grade = grade
@@ -71,9 +74,10 @@ fun UserDataModel.toUserTable(): UserTable {
     )
 }
 
-fun ProfessionalModel.toProfessionalTable(userId: Int): ProfessionalInfoTable {
+fun ProfessionalModel.toProfessionalTable(): ProfessionalInfoTable {
     return ProfessionalInfoTable(
-        userId = userId,
+        userId = 0,
+        prId = profId.toIntOrNull() ?: 0,
         experience = experience,
         designation = designation ,
         domain = domain,
@@ -82,6 +86,7 @@ fun ProfessionalModel.toProfessionalTable(userId: Int): ProfessionalInfoTable {
 
 fun ProfessionalInfoTable.toProfessionalModel(): ProfessionalModel {
     return ProfessionalModel(
+        profId = prId.toString(),
         experience = experience,
         designation = designation,
         domain = domain

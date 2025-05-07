@@ -17,12 +17,14 @@ data class AddressModel(
 )
 
 data class EducationModel(
+    val educationId: String = "",
     val education: String = "",
     val yearOfPassing: String = "",
     val grade: String = ""
 )
 
 data class ProfessionalModel(
+    val profId: String = "",
     val experience: String = "",
     val designation: String = "",
     val domain: String = ""

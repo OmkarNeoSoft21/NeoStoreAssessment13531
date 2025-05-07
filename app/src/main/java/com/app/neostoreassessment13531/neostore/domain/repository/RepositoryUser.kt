@@ -9,5 +9,7 @@ interface RepositoryUser {
 
     fun getAllUsers(): Flow<List<UserDataModel>>
 
-    suspend fun saveUser(model: RegisterUserModel):Boolean
+    suspend fun saveUser(model: RegisterUserModel): Boolean
+
+    suspend fun isUserPresent(user: UserDataModel) : Boolean
 }

@@ -62,6 +62,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.app.neostoreassessment13531.core.LocalNavController
+import com.app.neostoreassessment13531.core.animation.customBoundsTransform
 import com.app.neostoreassessment13531.core.ui.CustomToolbar
 import com.app.neostoreassessment13531.core.ui.screenMargin
 import com.app.neostoreassessment13531.core.ui.theme.AppTheme
@@ -192,9 +193,15 @@ private fun ProfileHeader(
         ) {
             Box(
                 modifier = Modifier
-                    .size(120.dp)
+                    .sharedBounds(
+                        sharedContentState = sharedTransitionScope.rememberSharedContentState(key = "image-${user?.id}"),
+                        animatedVisibilityScope = animatedContentScope,
+                        boundsTransform = customBoundsTransform
+                    )
+                    .size(150.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
+
             ) {
                 Image(
                     painter = if (!user?.imageUri.isNullOrEmpty())
@@ -202,12 +209,7 @@ private fun ProfileHeader(
                     else
                         rememberVectorPainter(Icons.Default.Person4),
                     contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .sharedElement(
-                            sharedTransitionScope.rememberSharedContentState(key = "image-${user?.id}"),
-                            animatedVisibilityScope = animatedContentScope
-                        ),
+                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -215,9 +217,10 @@ private fun ProfileHeader(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                modifier = Modifier.sharedElement(
+                modifier = Modifier.sharedBounds(
                     sharedTransitionScope.rememberSharedContentState(key = "name-${user?.id}"),
-                    animatedVisibilityScope = animatedContentScope
+                    animatedVisibilityScope = animatedContentScope,
+                    boundsTransform = customBoundsTransform
                 ),
                 text = "${user?.firstName ?: ""} ${user?.lastName ?: ""}",
                 fontSize = 24.sp,
@@ -227,9 +230,10 @@ private fun ProfileHeader(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                modifier = Modifier.sharedElement(
+                modifier = Modifier.sharedBounds(
                     sharedTransitionScope.rememberSharedContentState(key = "designation-${user?.id}"),
-                    animatedVisibilityScope = animatedContentScope
+                    animatedVisibilityScope = animatedContentScope,
+                    boundsTransform = customBoundsTransform
                 ),
                 text = user?.professional?.designation ?: "",
                 fontSize = 16.sp,

@@ -2,11 +2,8 @@ package com.app.neostoreassessment13531.neostore.data.repository
 
 import com.app.neostoreassessment13531.neostore.data.local.repository.LocalDataSourceUser
 import com.app.neostoreassessment13531.neostore.data.toAddressModel
-import com.app.neostoreassessment13531.neostore.data.toAddressTable
-import com.app.neostoreassessment13531.neostore.data.toEducationInfoTable
 import com.app.neostoreassessment13531.neostore.data.toEducationModel
 import com.app.neostoreassessment13531.neostore.data.toProfessionalModel
-import com.app.neostoreassessment13531.neostore.data.toProfessionalTable
 import com.app.neostoreassessment13531.neostore.data.toUserDataModel
 import com.app.neostoreassessment13531.neostore.data.toUserTable
 import com.app.neostoreassessment13531.neostore.domain.model.RegisterUserModel
@@ -35,15 +32,12 @@ class RepositoryUserImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveUser(model: RegisterUserModel) : Boolean {
-        val id = localDataSourceUser.saveUserInfo(model.user.toUserTable())
-        if (id == -1){
-            return false
-        }else{
-            localDataSourceUser.saveUserAddress(model.address.toAddressTable(id))
-            localDataSourceUser.saveUserProfessional(model.professional.toProfessionalTable(id))
-            localDataSourceUser.saveUserEducation(model.education.toEducationInfoTable(id))
-            return true
-        }
+    override suspend fun isUserPresent(user: UserDataModel): Boolean {
+        return localDataSourceUser.isUserPresent(user.toUserTable())
+    }
+
+    override suspend fun saveUser(model: RegisterUserModel): Boolean {
+        localDataSourceUser.saveUserDetails(model)
+        return localDataSourceUser.isUserPresent(model.user.toUserTable())
     }
 }

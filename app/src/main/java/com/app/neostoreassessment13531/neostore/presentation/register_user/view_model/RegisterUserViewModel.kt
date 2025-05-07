@@ -7,8 +7,8 @@ import com.app.neostoreassessment13531.core.snackbar.SnackBarData
 import com.app.neostoreassessment13531.core.util.ScreenState
 import com.app.neostoreassessment13531.core.util.UiState
 import com.app.neostoreassessment13531.neostore.domain.enum.Form
-import com.app.neostoreassessment13531.neostore.domain.model.RegisterUserModel
 import com.app.neostoreassessment13531.neostore.domain.repository.RepositoryUser
+import com.app.neostoreassessment13531.neostore.domain.util.HelperFun
 import com.app.neostoreassessment13531.neostore.presentation.register_user.state.StateRegisterUser
 import com.app.neostoreassessment13531.neostore.presentation.register_user.state.UiRegisterUserActions
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +26,7 @@ class RegisterUserViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<UiState<StateRegisterUser>> =
-        MutableStateFlow(UiState(state = StateRegisterUser(RegisterUserModel())))
+        MutableStateFlow(UiState(state = StateRegisterUser(HelperFun.getDummyRegisterUserModel())))
     val state = _state.asStateFlow()
 
     fun validateUser(onValidated: () -> Unit) {
@@ -36,7 +36,7 @@ class RegisterUserViewModel @Inject constructor(
                 Pair(user.firstName.isEmpty(), "Please enter first name"),
                 Pair(user.lastName.isEmpty(), "Please enter last name"),
                 Pair(user.phoneNumber.isEmpty(), "Please enter your phone number"),
-                Pair(user.phoneNumber.length == 9, "Please enter 10 digit phone number"),
+                Pair(user.phoneNumber.length < 10, "Please enter 10 digit phone number"),
                 Pair(user.email.isEmpty(), "Please enter your email"),
                 Pair(user.gender.isEmpty(), "Please select your gender"),
                 Pair(user.password.isEmpty(), "Please enter password"),

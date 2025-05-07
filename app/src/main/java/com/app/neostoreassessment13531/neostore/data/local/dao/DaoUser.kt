@@ -22,6 +22,9 @@ interface DaoUser {
     @Query("Select * from UserTable")
     fun getAllUsers():LiveData<List<UserWithAddress>>
 
+    @Query("Select * from UserTable where email=:emailId or phone_no=:mobileNo")
+    fun isUserPresent(emailId: String, mobileNo : String) : Boolean
+
     @Upsert
     suspend fun insertUser(user:UserTable) : Long
 
@@ -36,13 +39,16 @@ interface DaoUser {
 
     @Transaction
     suspend fun insertUserInfo(userInfo: UserWithAddress) {
-        // Insert user and get generated user_id
-        val userId = insertUser(userInfo.user).toInt()
+        try {// Insert user and get generated user_id
+            val userId = insertUser(userInfo.user).toInt()
 
-        // Insert related tables with the obtained userId
-        insertAddress(userInfo.address.copy(userId = userId))
-        insertEducation(userInfo.education.copy(userId = userId))
-        insertProfessional(userInfo.professionalInfo.copy(userId = userId))
+            // Insert related tables with the obtained userId
+            insertAddress(userInfo.address.copy(userId = userId))
+            insertEducation(userInfo.education.copy(userId = userId))
+            insertProfessional(userInfo.professionalInfo.copy(userId = userId))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
 }

@@ -9,6 +9,7 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -113,18 +114,16 @@ fun NeoStoreApp() {
                     Snackbar(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .windowInsetsTopHeight(
-                                WindowInsets.Companion.statusBars.add(
-                                    WindowInsets(top = 70.dp)
-                                )
-                            ),
+                            .windowInsetsTopHeight(WindowInsets.statusBars.add(WindowInsets(top = 60.dp)))
+                        ,
                         shape = RectangleShape,
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
                     ) {
                         Text(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .safeDrawingPadding(),
+                                .safeDrawingPadding()
+                            ,
                             text = snackBarData.visuals.message,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSecondaryContainer

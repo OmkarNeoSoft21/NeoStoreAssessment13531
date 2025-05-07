@@ -91,7 +91,6 @@ import com.app.neostoreassessment13531.neostore.presentation.register_user.view_
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
-import java.io.File
 
 
 @Composable
@@ -108,14 +107,13 @@ fun UiScreenRegisterUser(
         pagerState = pagerState,
         onUiRegisterUserActions = {
             when (it) {
-                is UiRegisterUserActions.OnBackPressed -> onBackPressed(
-                    navController = navController, pagerState = pagerState, scope = scope
-                )
+                is UiRegisterUserActions.OnBackPressed -> onBackPressed(navController = navController, pagerState = pagerState, scope = scope)
 
                 else -> viewModel.onUserAction(
                     action = it,
                     onNextPage = { onNextPage(scope = scope, pagerState = pagerState) },
-                    onRegisterUserCompletion = { navController.navigateUp() })
+                    onRegisterUserCompletion = { navController.navigateUp() }
+                )
             }
         })
 }
