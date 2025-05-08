@@ -14,6 +14,10 @@ This project is the completed assessment for an Android application that registe
     - Utilizes **NavHost** for managing screen transitions.
 - **Global SnackBar System**:
     - Centralized and reusable snack bar implementation for displaying messages across the app.
+- **Dagger Hilt for Dependency Injection**:
+  - Simplifies dependency management and lifecycle-aware injection across the app.
+  - Used following annotation @Provide @Inject @HiltViewModel @Singleton etc
+  - Utilised @AssistedInject @Assisted & @AssistedFactory for runtime injection of dependencies. 
 - **MVVM + Clean Architecture**:
     - Follows a clean separation of concerns.
     - Organized into data, domain, and presentation layers for better testability and maintainability.
