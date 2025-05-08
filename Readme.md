@@ -12,8 +12,14 @@ This project is the completed assessment for an Android application that registe
     - Designed to support **future scalability**.
 - **Navigation Component**:
     - Utilizes **NavHost** for managing screen transitions.
-- **Global Snackbar System**:
-    - Centralized and reusable snackbar implementation for displaying messages across the app.
+- **Global SnackBar System**:
+    - Centralized and reusable snack bar implementation for displaying messages across the app.
 - **MVVM + Clean Architecture**:
     - Follows a clean separation of concerns.
     - Organized into data, domain, and presentation layers for better testability and maintainability.
+
+## 📱 How to Run
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/android-assessment-app.git
